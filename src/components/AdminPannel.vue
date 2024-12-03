@@ -85,7 +85,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import { useRouter } from 'vue-router';
 
@@ -99,6 +99,30 @@ const toDate = ref("");
 const results = ref([]);
 const emailResultsPopupData = ref([]);
 const emailResultsPopupRender = ref(false);
+
+const validateDates = () => {
+  if (fromDate.value && toDate.value) {
+    const from = new Date(fromDate.value);
+    const to = new Date(toDate.value);
+
+    if (from > to) {
+      alert("From date cannot be greater than To date.");
+      fromDate.value = "";
+      return;
+    }
+
+    const differenceInDays = (to - from) / (1000 * 60 * 60 * 24);
+
+    if (differenceInDays > 30) {
+      alert("The difference between dates should not exceed 30 days.");
+      toDate.value = "";
+      return;
+    }
+  }
+}
+
+watch(fromDate, validateDates);
+watch(toDate, validateDates);
 
 const fetchData = async () => {
   try {
