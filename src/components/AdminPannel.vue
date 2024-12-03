@@ -87,6 +87,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
 
 // const searchJob = ref("");
 const searchEmail = ref("");
@@ -128,7 +131,7 @@ const fetchData = async () => {
 
 function Logout() {
   localStorage.removeItem("token")
-  this.$router.push({ name: 'Login' });
+  router.push({ name: "Login" });
  
 }
 function formatDateToISO(inputDate) {
@@ -233,6 +236,7 @@ html {
       font-weight: 500;
       font-size: 18px;
       color: white;
+      cursor: pointer;
       .icon {
         fill: white;
       }
