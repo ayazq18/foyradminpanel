@@ -3,24 +3,92 @@
     style="
       display: flex;
       align-items: center;
-      justify-content: center;
-      background-color: #fff7fa;
+      justify-content: space-between;
+      background: linear-gradient(to bottom, #faedf0, #faedf0);
       height: 100vh;
+      /* padding: 20px; */
+      color: #fff;
+      font-family: 'Poppins', sans-serif;
     "
   >
-    <div class="loginContainer">
-      <div class="image-container">
-        <img src="../assets/logo_p1.jpeg" alt="Foyr-logo" class="image" />
-      </div>
-      <div class="form-wrapper">
-        <!-- Login Form -->
-        <div class="form-container">
-          <h1>Login</h1>
-          <button class="submit-button" type="submit" @click="loginUser">
-            Continue to Login
-          </button>
-        </div>
-      </div>
+    <!-- Top-right logo -->
+    <div
+      style="
+        position: absolute;
+        top: 20px;
+        right: 20px;
+      "
+    >
+      <img
+        src="../assets/logo_p1.png"
+        alt="Foyr Logo"
+        style="width: 100px; height: auto;"
+      />
+    </div>
+
+    <!-- Left section: Large image -->
+    <div
+      style="
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <img
+        src="../assets/zone_landing.webp"
+        alt="Landing Image"
+        style="
+          max-width: 90%;
+          max-height: 80%;
+          animation: fadeIn 1s ease-out;
+        "
+      />
+    </div>
+
+    <!-- Right section: Form -->
+    <div
+      style="
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 40px;
+        text-align: center;
+      "
+    >
+      <h1
+        style="
+          font-size: 2rem;
+          font-weight: 700;
+          margin-bottom: 20px;
+          text-transform: uppercase;
+          letter-spacing: 1.5px;
+          animation: slideIn 1s ease-out;
+          color: black;
+        "
+      >
+        Welcome to Admin Control Panel
+      </h1>
+      <button
+        @click="loginUser"
+        style="
+          padding: 15px;
+          background: linear-gradient(90deg, #ff758c, #ff7eb3);
+          color: white;
+          border: none;
+          border-radius: 25px;
+          font-size: 18px;
+          font-weight: bold;
+          cursor: pointer;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          width: 60%;
+          margin: 0 auto;
+          box-shadow: 0 8px 20px rgba(255, 117, 140, 0.4);
+        "
+      >
+        Continue to Login
+      </button>
     </div>
   </div>
 </template>
@@ -47,93 +115,125 @@ export default {
       }
     },
 
-    async loginUserWithParams(code, state, sessionState) {
-      try {
-        const response = await axios.post("https://neo.foyr.com/api/auth", {
-          code: code,
-          state: state,
-          session_state: sessionState,
-        });
-        if (response) {
-          localStorage.setItem("token", response.data.token);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    },
+    
   },
 
-  mounted() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get("code");
-    const state = urlParams.get("state");
-    const sessionState = urlParams.get("session_state");
-    const token = localStorage.getItem("token");
-    if (token) {
-        this.$router.push({ name: 'AdminPanel' });
-    } else if (code && state && sessionState) {
-      this.loginUserWithParams(code, state, sessionState);
-    }
-  },
+ 
 };
 </script>
 
-<style>
+<style scoped>
+/* Main container styles */
 .loginContainer {
-  max-width: 400px;
-  margin: 100px auto;
-  padding: 20px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0px 0px 48px 0px rgba(0, 0, 0, 0.08);
-  overflow-x: hidden;
-}
-
-.form-wrapper {
-  display: flex;
-  width: 300px;
-  height: 250px;
-  /* transition: transform 0.6s ease-in-out; */
-}
-
-.form-container {
-  width: 100%;
-  margin: 0 auto;
-  /* border: 1px solid red; */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-h1 {
+  max-width: 500px;
+  margin: 20px auto;
+  padding: 30px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0px 10px 50px rgba(0, 0, 0, 0.2);
   text-align: center;
-  font-family: "Poppins", sans-serif;
-  color: #2c3e50;
+  animation: fadeIn 1s ease-out;
+  overflow: hidden;
+}
+
+/* Image container styles */
+.image-container {
   margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.submit-button {
-  padding: 12px;
-  background: gray;
-  color: white;
-  border: 1px solid gray;
-  border-radius: 25px;
-  font-size: 17px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 20px;
-  width: 80%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.submit-button:hover {
-  background: #2c3e50;
 }
 
 .image {
-  width: 150px;
+  width: 250px;
+  animation: bounceIn 1s ease-out;
+}
+
+/* Title styling */
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  animation: slideIn 1s ease-out;
+}
+
+/* Button styling */
+.submit-button {
+  padding: 15px;
+  background: linear-gradient(90deg, #e6aab4, #574a4f);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-top: 20px;
+  width: 100%;
+  box-shadow: 0 8px 20px rgba(255, 117, 140, 0.4);
+}
+
+.submit-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(255, 117, 140, 0.6);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes bounceIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 </style>
