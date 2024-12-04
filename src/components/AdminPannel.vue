@@ -111,7 +111,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from "vue";
+import { ref, watch,computed } from "vue";
 import axios from "axios";
 import { useRouter } from 'vue-router';
 
@@ -321,7 +321,6 @@ html {
       font-weight: 500;
       font-size: 18px;
       color: white;
-      cursor: pointer;
       i{
         color: white;
       }
