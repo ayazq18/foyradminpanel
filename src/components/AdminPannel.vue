@@ -111,8 +111,13 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "axios";
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+// const searchJob = ref("");
 const searchEmail = ref("");
 const searchEmailId = ref("");
 const fromDate = ref(null);
@@ -148,6 +153,29 @@ const searchbutton = computed(() => {
     fromDate.value <= toDate.value
   );
 });
+const validateDates = () => {
+  if (fromDate.value && toDate.value) {
+    const from = new Date(fromDate.value);
+    const to = new Date(toDate.value);
+
+    if (from > to) {
+      alert("From date cannot be greater than To date.");
+      fromDate.value = "";
+      return;
+    }
+
+    const differenceInDays = (to - from) / (1000 * 60 * 60 * 24);
+
+    if (differenceInDays > 30) {
+      alert("The difference between dates should not exceed 30 days.");
+      toDate.value = "";
+      return;
+    }
+  }
+}
+
+watch(fromDate, validateDates);
+watch(toDate, validateDates);
 
 const fetchData = async () => {
   try {
@@ -190,8 +218,9 @@ hideSpinner()
 };
 
 function Logout() {
-  localStorage.removeItem("token");
-  this.$router.push({ name: "Login" });
+  localStorage.removeItem("token")
+  router.push({ name: "Login" });
+ 
 }
 function formatDateToISO(inputDate) {
   const date = new Date(inputDate);
@@ -291,9 +320,10 @@ html {
       cursor: pointer;
       font-weight: 500;
       font-size: 18px;
-      color: rgb(255, 255, 255);
-      i {
-        color: rgb(255, 255, 255);
+      color: white;
+      cursor: pointer;
+      i{
+        color: white;
       }
     }
   }
