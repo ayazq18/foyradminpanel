@@ -366,7 +366,7 @@ html {
       cursor: pointer;
       font-weight: 500;
       font-size: 18px;
-      color: white;
+      color: rgb(0, 0, 0);
       cursor: pointer;
 
       i {
