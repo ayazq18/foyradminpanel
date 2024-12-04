@@ -66,7 +66,7 @@
               <td>{{ item.completedAt }}</td>
               <td @click="viewDetails(item)"><button>View Details</button></td>
               <td>
-                <button><i class="fa-solid fa-download"></i></button>
+                <button @click="downloadImg(item)" :disabled="!item.completedAt" ><i class="fa-solid fa-download"></i></button>
               </td>
             </tr>
           </tbody>
@@ -281,6 +281,21 @@ const viewDetails = async (item) => {
       return;
     }
     thumbnail.value = item?.extraInfo?.thumbnail;
+  } catch (error) {
+    console.error("Error fetching data:", error);
+  }
+};
+const downloadImg = async (item) => {
+  try {
+    if (item == "") {
+      alert("Image not Found");
+      return;
+    }
+    if (!item?.extraInfo?.thumbnail) {
+      alert("Image not Found");
+      return;
+    }
+    window.location.href=item?.extraInfo?.thumbnail
   } catch (error) {
     console.error("Error fetching data:", error);
   }
