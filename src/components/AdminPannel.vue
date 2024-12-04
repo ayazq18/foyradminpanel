@@ -64,7 +64,7 @@
               <td>{{ item.stateInfo.state }}</td>
               <td>{{ item.stateInfo.createdAt }}</td>
               <td>{{ item.completedAt }}</td>
-              <td><button>View Details</button></td>
+              <td @click="viewDetails(item)"><button>View Details</button></td>
               <td>
                 <button><i class="fa-solid fa-download"></i></button>
               </td>
@@ -93,29 +93,28 @@
         <span style="--i: 15"></span>
       </div>
     </div>
-    <div id="overlay" class="image-overlay-container">
-  <div class="overlay-header">
-    <span id="close-button" class="close-icon">✖</span>
-  </div>
-  <div class="image-container">
-    <img src="path-to-your-image.jpg" alt="Main Image" />
-  </div>
-</div>
-
-
-
-
-
+    
+    <div id="overlay" class="image-overlay-container" v-if="thumbnail != ''">
+      <div>
+        <div class="overlay-header" @click="viewDetails('')">
+          <span id="close-button" class="close-icon">✖</span>
+        </div>
+        <div class="image-container">
+          <img :src="thumbnail" alt="Main Image" />
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch,onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 // import { useRouter } from 'vue-router';
 
 // const router = useRouter();
 
+const thumbnail = ref("");
 const searchEmail = ref("");
 const searchEmailId = ref("");
 const fromDate = ref(null);
@@ -144,19 +143,18 @@ function hideSpinner() {
 // });
 // Close button functionality
 
-
 onMounted(() => {
-  const closeButton = document.getElementById('close-button');
-  const overlay = document.getElementById('overlay');
+  const closeButton = document.getElementById("close-button");
+  const overlay = document.getElementById("overlay");
 
   if (closeButton) {
-    closeButton.addEventListener('click', () => {
+    closeButton.addEventListener("click", () => {
       if (overlay) {
-        overlay.style.display = 'none';
+        overlay.style.display = "none";
       }
     });
   } else {
-    console.error('Close button not found in the DOM');
+    console.error("Close button not found in the DOM");
   }
 });
 
@@ -168,7 +166,7 @@ const validateDates = () => {
     if (from > to) {
       alert("From date cannot be greater than To date.");
       fromDate.value = "";
-      return;
+      return false;
     }
 
     const differenceInDays = (to - from) / (1000 * 60 * 60 * 24);
@@ -176,18 +174,18 @@ const validateDates = () => {
     if (differenceInDays > 30) {
       alert("The difference between dates should not exceed 30 days.");
       toDate.value = "";
-      return;
+      return false;
     }
+    return true;
   }
 };
 
-watch(fromDate, validateDates);
-watch(toDate, validateDates);
 
 const fetchData = async () => {
   try {
+    const validatedate=await validateDates();
+    if(validatedate){
     let query = "";
-
     showspinner();
     if (searchEmailId.value) query += `userId=654dc727c53735402a5f4b4e&`;
     if (fromDate.value) query += `startAt=${formatDateToISO(fromDate.value)}&`;
@@ -209,7 +207,7 @@ const fetchData = async () => {
     results.value = response.data.data;
 
     hideSpinner();
-    console.log("helo", results.value);
+  }
   } catch (error) {
     hideSpinner();
     console.error("Error fetching data:", error);
@@ -254,6 +252,7 @@ function formatDateToISO(inputDate) {
 
 const fetchEmailPopUpData = async () => {
   try {
+ 
     let query = "";
     if (searchEmail.value) query += `search=${searchEmail.value}&`;
 
@@ -268,9 +267,21 @@ const fetchEmailPopUpData = async () => {
     emailResultsPopupRender.value = true;
     emailResultsPopupData.value = response.data.users;
 
-    console.log(emailResultsPopupData.value);
+  
   } catch (error) {
     emailResultsPopupData.value = [];
+    console.error("Error fetching data:", error);
+  }
+};
+
+const viewDetails = async (item) => {
+  try {
+    if (item == "") {
+      thumbnail.value = "";
+      return;
+    }
+    thumbnail.value = item?.extraInfo?.thumbnail;
+  } catch (error) {
     console.error("Error fetching data:", error);
   }
 };
@@ -283,28 +294,18 @@ const setEmailValue = async (item) => {
     console.error("Error fetching data:", error);
   }
 };
+
 const formatDate = async (inputDate) => {
   const date = new Date(inputDate);
-
 
   const day = String(date.getUTCDate()).padStart(2, "0");
   const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase();
   const hours = date.getUTCHours();
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-
-  // Format hours and minutes into 12-hour format with AM/PM
-  const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
-  const amPm = hours < 12 ? 'AM' : 'PM';
-  console.log(`${day} ${month} / ${formattedHours}:${minutes} ${amPm}`)
-  // Combine into the final format
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  const formattedHours = hours % 12 || 12;
+  const amPm = hours < 12 ? "AM" : "PM";
   return `${day} ${month} / ${formattedHours}:${minutes} ${amPm}`;
 };
-
-
-onMounted(fetchData);
-
-
-
 </script>
 
 <style lang="scss" scoped>
@@ -313,7 +314,6 @@ onMounted(fetchData);
 body {
   margin: 0;
   padding: 0;
-
 }
 
 html {
@@ -328,7 +328,6 @@ html {
   padding: 0;
   position: relative;
   background-color: white;
-
 
   .navbar {
     padding: 1rem;
@@ -484,12 +483,10 @@ html {
     }
   }
 
-  
   .result {
     margin: 1rem;
     max-height: 400px;
     margin-top: 4rem;
-  
 
     table {
       width: 100%;
@@ -583,50 +580,59 @@ html {
     }
   }
   .image-overlay-container {
-  position: absolute; 
-  top: 5%;
-  left: 5%;
-  height: 90vh;
-  width: 90%;
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+    position: fixed;
+    top: 5%;
+    left: 5%;
+    height: 90vh;
+    width: 90%;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    display: fixed;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
 
-}
+  .image-overlay-container>div{
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-.image-overlay-container > .child {
-  position: relative; 
-}
-.overlay-header {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px;
-  position: absolute;
-  top: 0;
-  right: 0;
-}
+  }
 
-.close-icon {
-  font-size: 24px;
-  cursor: pointer;
-  color: black;
-  // background: #ffffff;
-  border-radius: 50%;
-  padding: 5px;
-  margin: 10px;
-  // box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-}
+  .overlay-header {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
 
-.image-container img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
+  .close-icon {
+    font-size: 24px;
+    cursor: pointer;
+    color: black;
+    border-radius: 50%;
+    padding: 5px;
+    margin: 10px;
+  }
 
+  .image-container {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    
+  }
 }
 </style>
