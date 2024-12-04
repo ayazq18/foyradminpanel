@@ -187,7 +187,7 @@ const fetchData = async () => {
     if(validatedate){
     let query = "";
     showspinner();
-    if (searchEmailId.value) query += `userId=654dc727c53735402a5f4b4e&`;
+    if (searchEmailId.value) query += `userId=${searchEmailId.value}&`;
     if (fromDate.value) query += `startAt=${formatDateToISO(fromDate.value)}&`;
     if (toDate.value) query += `endAt=${formatDateToISO(toDate.value)}&`;
 
