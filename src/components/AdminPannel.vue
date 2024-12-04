@@ -18,13 +18,8 @@
 
       <div class="search-box">
         <div class="input-area">
-          <input
-            type="text"
-            v-model="searchEmail"
-            placeholder="Search by email"
-            @input="fetchEmailPopUpData"
-          />
-          <div class="input-area-popup" v-if="emailResultsPopupRender && searchEmail!=''">
+          <input type="text" v-model="searchEmail" placeholder="Search by email" @input="fetchEmailPopUpData" />
+          <div class="input-area-popup" v-if="emailResultsPopupRender && searchEmail != ''">
             <table>
               <tbody>
                 <tr v-for="(item, index) in emailResultsPopupData" :key="index">
@@ -75,7 +70,7 @@
               <td>{{ item.project }}</td>
               <td>{{ item.stateInfo.state }}</td>
               <td>{{ item.stateInfo.createdAt }}</td>
-              <td>{{ item.completedAt  }}</td>
+              <td>{{ item.completedAt }}</td>
             </tr>
           </tbody>
         </table>
@@ -87,9 +82,9 @@
 <script setup>
 import { ref, onMounted, watch } from "vue";
 import axios from "axios";
-import { useRouter } from 'vue-router';
+// import { useRouter } from 'vue-router';
 
-const router = useRouter();
+// const router = useRouter();
 
 // const searchJob = ref("");
 const searchEmail = ref("");
@@ -133,7 +128,7 @@ const fetchData = async () => {
     if (toDate.value) query += `endAt=${formatDateToISO(toDate.value)}&`;
 
     const response = await axios.get(
-      ` https://magikrendermaster.foyr.com/api/render/list${(searchEmailId.value!='' && fromDate.value!='' && toDate.value!='')?`?${query}`:""}`,
+      ` https://magikrendermaster.foyr.com/api/render/list${(searchEmailId.value != '' && fromDate.value != '' && toDate.value != '') ? `?${query}` : ""}`,
       {
         headers: {
           Authorization: "Bearer s8Y605sMP6mAr86EH32Vgu9Gk5s_vC9tXn_L_vM_ZY0",
@@ -143,21 +138,44 @@ const fetchData = async () => {
 
     for (const item of response.data.data) {
       item.completedAt = await formatDate(item.completedAt);
-      item.stateInfo.createdAt  = await formatDate(item.stateInfo.createdAt );
+      item.stateInfo.createdAt = await formatDate(item.stateInfo.createdAt);
     }
     results.value = response.data.data;
 
-    console.log("helo",results.value);
+    console.log("helo", results.value);
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 };
 
-function Logout() {
-  localStorage.removeItem("token")
-  router.push({ name: "Login" });
- 
-}
+// function Logout() {
+//   localStorage.removeItem("token")
+//   router.push({ name: "Login" });
+
+// }
+
+const Logout = async () => {
+  try {
+    const response = await axios.post(
+      "https://neo.foyr.com/api/auth/logout",
+      {}, // Empty body since it's a logout request
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    );
+
+    if (response) {
+      localStorage.removeItem('token')
+      window.location.href = response.data.url;
+    }
+  } catch (error) {
+    console.error('Logout error:', error);
+  }
+};
+
+
 function formatDateToISO(inputDate) {
   const date = new Date(inputDate);
 
@@ -180,7 +198,7 @@ const fetchEmailPopUpData = async () => {
         },
       }
     );
-    emailResultsPopupRender.value=true;
+    emailResultsPopupRender.value = true;
     emailResultsPopupData.value = response.data.users;
 
     console.log(emailResultsPopupData.value);
@@ -192,14 +210,14 @@ const fetchEmailPopUpData = async () => {
 };
 const setEmailValue = async (item) => {
   try {
-    searchEmail.value=item.email;
-    searchEmailId.value=item._id;
-    emailResultsPopupRender.value=false
+    searchEmail.value = item.email;
+    searchEmailId.value = item._id;
+    emailResultsPopupRender.value = false
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 };
-const formatDate = async (inputDate) =>{
+const formatDate = async (inputDate) => {
   const date = new Date(inputDate);
 
   // Get the day, month, hours, and minutes
@@ -211,7 +229,7 @@ const formatDate = async (inputDate) =>{
   // Format hours and minutes into 12-hour format with AM/PM
   const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
   const amPm = hours < 12 ? 'AM' : 'PM';
-console.log(`${day} ${month} / ${formattedHours}:${minutes} ${amPm}`)
+  console.log(`${day} ${month} / ${formattedHours}:${minutes} ${amPm}`)
   // Combine into the final format
   return `${day} ${month} / ${formattedHours}:${minutes} ${amPm}`;
 }
@@ -219,7 +237,7 @@ console.log(`${day} ${month} / ${formattedHours}:${minutes} ${amPm}`)
 
 onMounted(fetchData);
 
- 
+
 
 </script>
 
@@ -261,6 +279,7 @@ html {
       font-size: 18px;
       color: white;
       cursor: pointer;
+
       .icon {
         fill: white;
       }
@@ -309,7 +328,7 @@ html {
             display: none;
           }
 
-          
+
           td {
             padding: 12px;
             text-align: left;
@@ -358,6 +377,7 @@ html {
         color: #939090;
       }
     }
+
     #submit {
       display: flex;
 

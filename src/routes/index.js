@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import UserLogin from '../components/userLogin.vue';
 import AdminPannel from '../components/AdminPannel.vue';
 import AuthCallback from '@/components/AuthCallback.vue';
+import LogoutCallback from '@/components/LogoutCallback.vue';
 
 const routes = [
   {
@@ -13,6 +14,11 @@ const routes = [
     path: '/callback',
     name: 'AuthCallback',
     component: AuthCallback,
+  },
+  {
+    path: '/logout/callback',
+    name: 'LogoutCallback',
+    component: LogoutCallback,
   },
   {
     path: '/admin',
