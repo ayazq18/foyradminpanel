@@ -116,7 +116,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
 
@@ -174,7 +174,7 @@ const validateDates = () => {
     if (from > to) {
       alert("From date cannot be greater than To date.");
       fromDate.value = "";
-      return;
+      return false;
     }
 
     const differenceInDays = (to - from) / (1000 * 60 * 60 * 24);
@@ -182,18 +182,18 @@ const validateDates = () => {
     if (differenceInDays > 30) {
       alert("The difference between dates should not exceed 30 days.");
       toDate.value = "";
-      return;
+      return false;
     }
+    return true;
   }
 };
 
-watch(fromDate, validateDates);
-watch(toDate, validateDates);
 
 const fetchData = async () => {
   try {
+    const validatedate=await validateDates();
+    if(validatedate){
     let query = "";
-
     showspinner();
     if (searchEmailId.value) query += `userId=654dc727c53735402a5f4b4e&`;
     if (fromDate.value) query += `startAt=${formatDateToISO(fromDate.value)}&`;
@@ -219,7 +219,7 @@ const fetchData = async () => {
     results.value = response.data.data;
 
     hideSpinner();
-    console.log("helo", results.value);
+  }
   } catch (error) {
     hideSpinner();
     console.error("Error fetching data:", error);
@@ -240,6 +240,7 @@ function formatDateToISO(inputDate) {
 
 const fetchEmailPopUpData = async () => {
   try {
+ 
     let query = "";
     if (searchEmail.value) query += `search=${searchEmail.value}&`;
 
@@ -254,7 +255,7 @@ const fetchEmailPopUpData = async () => {
     emailResultsPopupRender.value = true;
     emailResultsPopupData.value = response.data.users;
 
-    console.log(emailResultsPopupData.value);
+  
   } catch (error) {
     emailResultsPopupData.value = [];
     console.error("Error fetching data:", error);
@@ -291,7 +292,6 @@ const formatDate = async (inputDate) => {
   const minutes = String(date.getUTCMinutes()).padStart(2, "0");
   const formattedHours = hours % 12 || 12;
   const amPm = hours < 12 ? "AM" : "PM";
-  console.log(`${day} ${month} / ${formattedHours}:${minutes} ${amPm}`);
   return `${day} ${month} / ${formattedHours}:${minutes} ${amPm}`;
 };
 </script>
