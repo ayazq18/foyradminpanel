@@ -1,22 +1,15 @@
 <template>
   <div class="main-wrapper">
     <div class="navbar">
-      <div class="logo">RENDERING</div>
+      <div class="logo"><img src="../assets/foyr_logo.svg" alt="" /></div>
       <div class="logout" @click="Logout">
-        <img class="icon" src="../assets/logout.svg" alt="" /> Logout
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
       </div>
     </div>
     <div class="search-area">
-      <!-- <div class="search-box">
-        <div class="input-area">
-          <input type="text" v-model="searchJob" placeholder="Search Job" />
-        </div>
-        <div class="text-area">
-          Search by job name, job status, or user email from the fetched results
-        </div>
-      </div> -->
-
       <div class="search-box">
+        <!-- <div class="text-area">Search by email fetch data from the server</div> -->
+        <div class="text-area">fetch server data by Email</div>
         <div class="input-area">
           <input
             type="text"
@@ -24,7 +17,10 @@
             placeholder="Search by email"
             @input="fetchEmailPopUpData"
           />
-          <div class="input-area-popup" v-if="emailResultsPopupRender && searchEmail!=''">
+          <div
+            class="input-area-popup"
+            v-if="emailResultsPopupRender && searchEmail != ''"
+          >
             <table>
               <tbody>
                 <tr v-for="(item, index) in emailResultsPopupData" :key="index">
@@ -34,12 +30,12 @@
             </table>
           </div>
         </div>
-        <div class="text-area">Search by email fetch data from the server</div>
       </div>
+
       <div class="search-box">
         <div class="label"><label for="from-date">Choose from date</label></div>
         <div id="date" class="input-area">
-          <input type="date" v-model="fromDate" />
+          <input type="date" v-model="fromDate" placeholder="" />
         </div>
       </div>
 
@@ -50,8 +46,8 @@
         </div>
       </div>
 
-      <div id="submit" class="search-box">
-        <button @click="fetchData">Submit</button>
+      <div v-if="searchbutton" id="submit">
+        <button @click="fetchData">Fetch Data</button>
       </div>
     </div>
 
@@ -62,74 +58,140 @@
             <tr>
               <th>Name</th>
               <th>Email</th>
-              <th>Project</th>
               <th>Status</th>
               <th>Started</th>
               <th>Completed</th>
+              <th>Views</th>
+              <th>Download</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(item, index) in results" :key="index">
               <td>{{ item.userData.fullName }}</td>
               <td>{{ item.userData.email }}</td>
-              <td>{{ item.project }}</td>
               <td>{{ item.stateInfo.state }}</td>
               <td>{{ item.stateInfo.createdAt }}</td>
-              <td>{{ item.completedAt  }}</td>
+              <td>{{ item.completedAt }}</td>
+              <td><button>View Details</button></td>
+              <td>
+                <button><i class="fa-solid fa-download"></i></button>
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
+    
+
+  <div class="spinner-overlay">
+        <div class="dots">
+            <span style="--i:1;"></span>
+            <span style="--i:2;"></span>
+            <span style="--i:3;"></span>
+            <span style="--i:4;"></span>
+            <span style="--i:5;"></span>
+            <span style="--i:6;"></span>
+            <span style="--i:7;"></span>
+            <span style="--i:8;"></span>
+            <span style="--i:9;"></span>
+            <span style="--i:10;"></span>
+            <span style="--i:11;"></span>
+            <span style="--i:12;"></span>
+            <span style="--i:13;"></span>
+            <span style="--i:14;"></span>
+            <span style="--i:15;"></span>
+        </div>
+    </div>
+
+
   </div>
+
+
+
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, computed } from "vue";
 import axios from "axios";
-
-// const searchJob = ref("");
 const searchEmail = ref("");
 const searchEmailId = ref("");
-const fromDate = ref("");
-const toDate = ref("");
+const fromDate = ref(null);
+const toDate = ref(null);
 const results = ref([]);
 const emailResultsPopupData = ref([]);
 const emailResultsPopupRender = ref(false);
 
+//  const spinnerOverlay = ref(null); // Use ref for the spinner
+
+// Ensure the spinner is available after the component is mount
+ const spinneroverlay = document.getElementsByClassName('spinner-overlay') 
+
+// function hideSpinner() {
+//   if (spinnerOverlay.value) {
+//     spinnerOverlay.value.classList.remove('active'); 
+//   }
+// }
+
+function showspinner(){
+  spinneroverlay[0].style.display='flex'
+}
+
+function hideSpinner() {
+ spinneroverlay[0].style.display='none'
+}
+
+const searchbutton = computed(() => {
+  return (
+    searchEmail.value.trim() !== "" &&
+    fromDate.value &&
+    toDate.value &&
+    fromDate.value <= toDate.value
+  );
+});
+
 const fetchData = async () => {
   try {
+
+
+   
     let query = "";
-    // if (searchJob.value) query += `job=${searchJob.value}&`;
+    
+    showspinner()
     if (searchEmailId.value) query += `userId=654dc727c53735402a5f4b4e&`;
     if (fromDate.value) query += `startAt=${formatDateToISO(fromDate.value)}&`;
     if (toDate.value) query += `endAt=${formatDateToISO(toDate.value)}&`;
 
     const response = await axios.get(
-      ` https://magikrendermaster.foyr.com/api/render/list${(searchEmailId.value!='' && fromDate.value!='' && toDate.value!='')?`?${query}`:""}`,
+      ` https://magikrendermaster.foyr.com/api/render/list${
+        searchEmailId.value != "" && fromDate.value != "" && toDate.value != ""
+          ? `?${query}`
+          : ""
+      }`,
       {
         headers: {
           Authorization: "Bearer s8Y605sMP6mAr86EH32Vgu9Gk5s_vC9tXn_L_vM_ZY0",
         },
       }
     );
+    
 
     for (const item of response.data.data) {
       item.completedAt = await formatDate(item.completedAt);
-      item.stateInfo.createdAt  = await formatDate(item.stateInfo.createdAt );
+      item.stateInfo.createdAt = await formatDate(item.stateInfo.createdAt);
     }
     results.value = response.data.data;
-
-    console.log("helo",results.value);
+  
+hideSpinner()
+    console.log("helo", results.value);
   } catch (error) {
+    hideSpinner()
     console.error("Error fetching data:", error);
   }
 };
 
 function Logout() {
-  localStorage.removeItem("token")
-  this.$router.push({ name: 'Login' });
- 
+  localStorage.removeItem("token");
+  this.$router.push({ name: "Login" });
 }
 function formatDateToISO(inputDate) {
   const date = new Date(inputDate);
@@ -138,7 +200,6 @@ function formatDateToISO(inputDate) {
 
   return date.toISOString().replace(".000", "");
 }
-
 
 const fetchEmailPopUpData = async () => {
   try {
@@ -153,11 +214,10 @@ const fetchEmailPopUpData = async () => {
         },
       }
     );
-    emailResultsPopupRender.value=true;
+    emailResultsPopupRender.value = true;
     emailResultsPopupData.value = response.data.users;
 
     console.log(emailResultsPopupData.value);
-
   } catch (error) {
     emailResultsPopupData.value = [];
     console.error("Error fetching data:", error);
@@ -165,40 +225,36 @@ const fetchEmailPopUpData = async () => {
 };
 const setEmailValue = async (item) => {
   try {
-    searchEmail.value=item.email;
-    searchEmailId.value=item._id;
-    emailResultsPopupRender.value=false
+    searchEmail.value = item.email;
+    searchEmailId.value = item._id;
+    emailResultsPopupRender.value = false;
   } catch (error) {
     console.error("Error fetching data:", error);
   }
 };
-const formatDate = async (inputDate) =>{
+const formatDate = async (inputDate) => {
   const date = new Date(inputDate);
 
   // Get the day, month, hours, and minutes
-  const day = String(date.getUTCDate()).padStart(2, '0');
-  const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = date.toLocaleString("en-US", { month: "short" }).toUpperCase();
   const hours = date.getUTCHours();
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
 
   // Format hours and minutes into 12-hour format with AM/PM
   const formattedHours = hours % 12 || 12; // Convert 0 to 12 for 12-hour format
-  const amPm = hours < 12 ? 'AM' : 'PM';
-console.log(`${day} ${month} / ${formattedHours}:${minutes} ${amPm}`)
+  const amPm = hours < 12 ? "AM" : "PM";
+  console.log(`${day} ${month} / ${formattedHours}:${minutes} ${amPm}`);
   // Combine into the final format
   return `${day} ${month} / ${formattedHours}:${minutes} ${amPm}`;
-}
+};
 
-
-onMounted(fetchData);
-
- 
-
+// onMounted(fetchData);
 </script>
 
 <style lang="scss" scoped>
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
-
+@import "@fortawesome/fontawesome-free/css/all.css";
 body {
   margin: 0;
   padding: 0;
@@ -221,20 +277,23 @@ html {
     justify-content: space-between;
     align-items: center;
     height: 3rem;
-    background: black;
+    background: #7343ea;
+    box-shadow: 0px 4px 20px 0px #0000001f;
 
     .logo {
       font-weight: 600;
       font-size: 18px;
       color: white;
+      cursor: pointer;
     }
 
     .logout {
+      cursor: pointer;
       font-weight: 500;
       font-size: 18px;
-      color: white;
-      .icon {
-        fill: white;
+      color: rgb(255, 255, 255);
+      i {
+        color: rgb(255, 255, 255);
       }
     }
   }
@@ -246,17 +305,19 @@ html {
     box-shadow: 0px 4px 20px 0px #0000001f;
     display: flex;
     justify-content: space-around;
+
     align-items: center;
 
     .search-box {
       width: 15%;
       height: 10rem;
-      background-color: white;
+      // background-color: aquamarine;
       display: flex;
       flex-direction: column;
-
       position: relative;
-      // gap: 1rem;
+      align-items: center;
+     
+     
 
       .input-area {
         width: 100%;
@@ -276,12 +337,12 @@ html {
           background-color: white;
           box-shadow: 0 0 10px 0px black;
           z-index: 1000;
+          border-radius: 10px;
 
           &::-webkit-scrollbar {
             display: none;
           }
 
-          
           td {
             padding: 12px;
             text-align: left;
@@ -302,13 +363,17 @@ html {
           &::-webkit-calendar-picker-indicator {
             margin-right: 8px;
           }
+          &:focus {
+            border-color:  #939090;
+            outline: none;
+          }
         }
       }
 
       .label {
-        position: absolute;
-        top: 0.2rem;
-        left: 3rem;
+        // position: absolute;
+        // top: 0.2rem;
+        // left: 3rem;
         font-family: Inter;
         font-size: 14px;
         font-weight: 400;
@@ -317,9 +382,11 @@ html {
         text-underline-position: from-font;
         text-decoration-skip-ink: none;
         color: #939090;
+        margin-top: 1rem;
       }
 
       .text-area {
+        margin-top:1rem;
         font-family: Inter;
         font-size: 14px;
         font-weight: 400;
@@ -352,39 +419,103 @@ html {
     }
   }
 
-  .result-wrapper {
-    width: 100vw;
-    overflow-x: scroll;
+  .result {
+    margin: 1rem;
+    max-height: 400px;
+    margin-top: 4rem;
 
-    .result {
-      margin: 1rem;
-      max-height: 400px;
-
+    table {
       width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+      border: 1px solid #ccc;
+    }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: auto;
-        border: 1px solid #ccc;
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    button {
+      all: unset;
+      display: inline-block;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: Inter, sans-serif;
+      color: #ffffff;
+      background-color: #7343ea;
+      border-radius: 4px;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.3s, transform 0.2s;
+
+      i {
+        margin-right: 8px;
       }
 
-      th,
-      td {
-        padding: 12px;
-        text-align: left;
-        border: 1px solid #ddd;
+      &:hover {
+        background-color: #5a32b8;
+        transform: scale(1.05);
       }
 
-      th {
-        background-color: #f2f2f2;
-        font-weight: bold;
+      &:active {
+        background-color: #422493;
+        transform: scale(1);
       }
 
-      tr:nth-child(even) {
-        background-color: #f9f9f9;
+      &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
       }
     }
   }
+
+
+  .spinner-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+   
+}
+.spinner-overlay.active {
+    display: flex;
+}
+.dots span {
+    position: absolute;
+    height: 10px;
+    width: 10px;
+    background: #fff;
+    border-radius: 50%;
+    transform: rotate(calc(var(--i) * (360deg / 15))) translateY(35px);
+    animation: animate 1.5s linear infinite;
+    animation-delay: calc(var(--i) * 0.1s);
+    opacity: 0;
+}
+@keyframes animate {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
+
+
 }
 </style>
